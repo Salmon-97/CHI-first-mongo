@@ -1,17 +1,58 @@
-const user = require("../model/user.model")
+const Post = require("../model/post.model")
 
-async function createUser(req, res) {
+async function createPost(req, res) {
     try {
-        let userExists = await User.findOne({email: req.body.email});
-        if(userExists) {
-            res.status(400).json({
-                message: "user already exist, i think you should login"
+            let post = new Post(req.body);
+            await post.save();
+            res.status(201).json({
+                message: "post created", post
+            });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "server error"
+        });
+    }
+}
+
+async function fetchAllPosts(req, res) {
+    try {
+        let posts = await Post.find()
+        res.status(200).json({message: "posts fetched", posts});
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "server error"
+        });
+    }
+}
+
+async function fetchPostById(req, res) {
+    try {
+        let post = await Post.findById(req.params.id)
+        res.status(200).json({
+            message: "post fetched by id", post
+        });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "server error"
+        });
+    }
+}
+
+async function updatePost(req, res) {
+    try {
+        let postExists = await Post.findById(req.params.id);
+        if (postExists) {
+            await postExists.updateOne(req.body);
+            res.status(201).json({
+                message: "post updated",
+                postExists
             });
         } else {
-            let user = new User(req.body);
-            await user.save();
-            res.status(201).json({
-                message: "user created", user
+            res.status(404).json({
+                message: "post does not exist",
             });
         }
     } catch (error) {
@@ -22,53 +63,18 @@ async function createUser(req, res) {
     }
 }
 
-async function fetchAllUsers(req, res) {
+async function deletePost (req, res) {
     try {
-        let users = await User.find()
-        res.status(200).json({message: "users fetched", users});
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: "server error"
-        });
-    }
-}
-
-
-async function updateUser(req, res) {
-    try {
-        let userExists = await User.findById(req.params.id);
-        if (userExists) {
-            await userExists.updateOne(req.body);
+        let postExists = await Post.findById(req.params.id);
+        if (postExists) {
+            await postExists.deleteOne(req.body);
             res.status(201).json({
-                message: "user updated",
-                userExists
+                message: "post deleted",
+                postExists
             });
         } else {
             res.status(404).json({
-                message: "user does not exist",
-            });
-        }
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: "server error"
-        });
-    }
-}
-
-async function deleteUser (req, res) {
-    try {
-        let userExists = await User.findById(req.params.id);
-        if (userExists) {
-            await userExists.deleteOne(req.body);
-            res.status(201).json({
-                message: "user deleted",
-                userExists
-            });
-        } else {
-            res.status(404).json({
-                message: "user does not exist",
+                message: "post does not exist",
             });
         }
     } catch (error) {
@@ -91,4 +97,4 @@ async function unknownRoute(req, res) {
     }
 }
 
-module.exports = { unknownRoute, createUser, fetchAllUsers, updateUser, deleteUser };
+module.exports = { unknownRoute, createPost, fetchAllPosts, updatePost, deletePost, fetchPostById };

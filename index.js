@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const { unknownRoute, getBase, createUser, fetchAllUsers, updateUser, deleteUser, } = require("./controllers");
 const { validateSignupData, validateLoginData, } = require("./controllers/validators/auth.validators");
 const { loginUser, signupUser, isTokenValid } = require("./controllers/auth.controllers");
+const { createPost, fetchAllPosts, updatePost, deletePost, fetchPostById } = require("./assessment");
 const app = express();
 const PORT = 5454;
 const dotenv = require("dotenv");
@@ -19,19 +20,23 @@ app.put("/user/:id", updateUser)
 app.post("/signup", validateSignupData, signupUser)
 app.post("/login", validateLoginData, loginUser);
 app.delete("/user/:id", deleteUser);
-app.post("/post", isTokenValid, (req, res) => {
-  try {
-    res.status(200).json({
-      message: "you are authorized to to view this page"
-  });
-  } catch (error) {
-    console.log(error)
-    return res.status(500).json({
-            message: "server error"
-        });
-  }
-});
-
+// app.post("/post", isTokenValid, (req, res) => {
+//   try {
+//     res.status(200).json({
+//       message: "you are authorized to to view this page"
+//   });
+//   } catch (error) {
+//     console.log(error)
+//     return res.status(500).json({
+//             message: "server error"
+//         });
+//   }
+// });
+app.post("/post", createPost);
+app.put("/post/:id", updatePost);
+app.get("/post", fetchAllPosts);
+app.delete("/post/:id", deletePost);
+app.get("/post/:id", fetchPostById)
 app.all("*", unknownRoute);
 
 
